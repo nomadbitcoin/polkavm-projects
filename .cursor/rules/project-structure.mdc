@@ -1,0 +1,42 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Structure and Organization
+
+## Development Environment (`/contracts-development`)
+This directory contains all Foundry-related development work:
+- Smart contract development and testing
+- Foundry configuration and scripts
+- Development-specific tests
+- Local development tools and utilities
+
+Key files:
+- [foundry.toml](mdc:contracts-development/foundry.toml) - Foundry configuration
+- [src/](mdc:contracts-development/src) - Smart contract source code
+- [test/](mdc:contracts-development/test) - Foundry tests
+- [script/](mdc:contracts-development/script) - Foundry deployment scripts
+
+## Deployment Environment (`/contracts-deployment`)
+This directory handles all deployment and network-related operations:
+- Hardhat configuration and deployment scripts
+- Network configurations
+- Deployment-specific tests
+- Production deployment tools
+
+Key files:
+- [hardhat.config.ts](mdc:contracts-deployment/hardhat.config.ts) - Hardhat configuration
+- [package.json](mdc:contracts-deployment/package.json) - Deployment dependencies
+- [tsconfig.json](mdc:contracts-deployment/tsconfig.json) - TypeScript configuration
+
+## Development Workflow
+1. All smart contract development should be done in `/contracts-development`
+2. Use Foundry for local development and testing
+3. Network-specific configurations should be managed in the deployment directory
+
+## Best Practices
+- Keep development and deployment concerns separate
+- Use Foundry for development and testing
+- Use Hardhat for deployment and network interactions
+- Maintain clear separation between development and production environments
