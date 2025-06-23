@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "deploy": "hardhat run scripts/deploy.ts",
+    "deploy": "npx hardhat ignition deploy ignition/modules/Oracle.ts --network westendAssetHub",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
