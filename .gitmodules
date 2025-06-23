@@ -1,3 +1,0 @@
-[submodule "westend-crud/contracts-development/lib/forge-std"]
-	path = westend-crud/contracts-development/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
