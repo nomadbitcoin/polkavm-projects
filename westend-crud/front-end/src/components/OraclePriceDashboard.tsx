@@ -56,6 +56,17 @@ export function OraclePriceDashboard({
     (price) => !price.exists || !price.isActive
   );
 
+  // Function to get optimal grid columns based on number of items
+  const getGridColumns = (itemCount: number) => {
+    if (itemCount <= 2) return "grid-cols-1 sm:grid-cols-2";
+    if (itemCount <= 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+    if (itemCount <= 6)
+      return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6";
+    if (itemCount <= 8)
+      return "grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8";
+    return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6";
+  };
+
   return (
     <div className="space-y-6">
       {/* Active Feeds */}
@@ -64,7 +75,7 @@ export function OraclePriceDashboard({
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Active Price Feeds ({activeFeeds.length})
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid ${getGridColumns(activeFeeds.length)} gap-4`}>
             {activeFeeds.map((priceData) => (
               <OraclePriceCard key={priceData.symbol} priceData={priceData} />
             ))}
@@ -78,7 +89,7 @@ export function OraclePriceDashboard({
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Inactive Feeds ({inactiveFeeds.length})
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid ${getGridColumns(inactiveFeeds.length)} gap-4`}>
             {inactiveFeeds.map((priceData) => (
               <OraclePriceCard key={priceData.symbol} priceData={priceData} />
             ))}

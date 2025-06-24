@@ -16,7 +16,7 @@ export interface OraclePrice {
 
 export function useOracleData(
   oracleAddress: string,
-  symbols: string[] = ["BTC", "ETH", "SOL", "ADA"]
+  symbols: string[] = ["BTC", "DOT", "ETH", "SOL", "USDT", "USDC"]
 ) {
   const [prices, setPrices] = useState<OraclePrice[]>([]);
   const [loading, setLoading] = useState(true);
