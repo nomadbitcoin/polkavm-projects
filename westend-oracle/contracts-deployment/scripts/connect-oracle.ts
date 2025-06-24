@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { Oracle } from "../typechain-types";
+import { OracleUpgradeable } from "../typechain-types";
 import * as dotenv from "dotenv";
 
 // Load environment variables
@@ -17,13 +17,14 @@ async function main() {
 
   console.log(`Oracle contract address: ${oracleAddress}`);
 
-  // Get the Oracle contract instance
-  const OracleFactory = await ethers.getContractFactory("Oracle");
-  const oracle = OracleFactory.attach(oracleAddress) as Oracle;
+  // Get the Oracle contract instance - use OracleUpgradeable instead of Oracle
+  const OracleFactory = await ethers.getContractFactory("OracleUpgradeable");
+  const oracle = OracleFactory.attach(oracleAddress) as OracleUpgradeable;
 
   // Verify the contract is deployed and accessible
+  let owner: string;
   try {
-    const owner = await oracle.owner();
+    owner = await oracle.owner();
     console.log(`✓ Oracle owner: ${owner}`);
   } catch (error) {
     throw new Error(
@@ -34,6 +35,43 @@ async function main() {
   // Get deployer account
   const [deployer] = await ethers.getSigners();
   console.log(`✓ Connected with account: ${deployer.address}`);
+
+  // Check if the connected account is the owner
+  if (owner !== deployer.address) {
+    console.log(
+      `⚠️  Warning: Connected account (${deployer.address}) is not the Oracle owner (${owner})`
+    );
+    console.log("This means you won't be able to create or update feeds.");
+    console.log("You can still read existing feeds.");
+
+    // Test read-only operations only
+    console.log("\n🧪 Testing Oracle read-only functionality...");
+
+    // Check if any feeds exist
+    const testSymbols = ["BTC", "ETH", "SOL", "ADA"];
+    for (const symbol of testSymbols) {
+      try {
+        const exists = await oracle.feedExists(symbol);
+        if (exists) {
+          const price = await oracle.getPrice(symbol);
+          console.log(
+            `✅ ${symbol} feed exists: ${ethers.formatUnits(price, 8)} USD`
+          );
+        } else {
+          console.log(`ℹ️  ${symbol} feed does not exist`);
+        }
+      } catch (error) {
+        console.log(`❌ Error checking ${symbol} feed:`, error);
+      }
+    }
+
+    console.log("\n🔧 To fix this issue, you need to:");
+    console.log("1. Deploy the Oracle contract with the correct owner");
+    console.log("2. Or transfer ownership to your account");
+    console.log("3. Or use the account that is currently the owner");
+
+    return;
+  }
 
   // Test Oracle functionality
   console.log("\n🧪 Testing Oracle functionality...");

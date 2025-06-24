@@ -1,0 +1,6 @@
+[submodule "westend-crud/contracts-development/lib/openzeppelin-contracts"]
+	path = westend-oracle/contracts-development/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "westend-crud/contracts-development/lib/openzeppelin-contracts-upgradeable"]
+	path = westend-oracle/contracts-development/lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable

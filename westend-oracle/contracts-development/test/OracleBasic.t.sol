@@ -2,17 +2,39 @@
 pragma solidity ^0.8.19;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {Oracle} from "../src/Oracle.sol";
+import {OracleUpgradeable} from "../src/OracleUpgradeable.sol";
+import {OracleProxy} from "../src/OracleProxy.sol";
 
-contract OracleTest is Test {
-    Oracle public oracle;
+contract OracleBasicTest is Test {
+    OracleUpgradeable public implementation;
+    OracleProxy public proxy;
+    OracleUpgradeable public oracle;
     address public owner;
     address public user;
     
     function setUp() public {
         owner = address(this);
         user = address(0x123);
-        oracle = new Oracle();
+        
+        // Deploy implementation
+        implementation = new OracleUpgradeable();
+        
+        // Prepare initialization data
+        bytes memory initData = abi.encodeWithSelector(
+            OracleUpgradeable.initialize.selector,
+            owner
+        );
+        
+        // Deploy proxy
+        proxy = new OracleProxy(address(implementation), initData);
+        
+        // Cast proxy to OracleUpgradeable interface
+        oracle = OracleUpgradeable(address(proxy));
+    }
+    
+    function test_Initialization() public view {
+        assertEq(oracle.owner(), owner, "Owner should be set correctly");
+        assertEq(oracle.version(), "0.1.0", "Version should be correct");
     }
     
     function test_CreateFeed() public {
@@ -167,17 +189,17 @@ contract OracleTest is Test {
     
     function test_OnlyOwnerAccess() public {
         vm.prank(user);
-        vm.expectRevert("Only owner can call this function");
+        vm.expectRevert(abi.encodeWithSelector(bytes4(keccak256("OwnableUnauthorizedAccount(address)")), user));
         oracle.createFeed("TEST", 1000);
         
         oracle.createFeed("TEST", 1000);
         
         vm.prank(user);
-        vm.expectRevert("Only owner can call this function");
+        vm.expectRevert(abi.encodeWithSelector(bytes4(keccak256("OwnableUnauthorizedAccount(address)")), user));
         oracle.updatePrice("TEST", 2000);
         
         vm.prank(user);
-        vm.expectRevert("Only owner can call this function");
+        vm.expectRevert(abi.encodeWithSelector(bytes4(keccak256("OwnableUnauthorizedAccount(address)")), user));
         oracle.deleteFeed("TEST");
     }
     
@@ -187,18 +209,18 @@ contract OracleTest is Test {
         
         // Test FeedCreated event
         vm.expectEmit(true, false, false, true);
-        emit Oracle.FeedCreated(symbol, price);
+        emit OracleUpgradeable.FeedCreated(symbol, price);
         oracle.createFeed(symbol, price);
         
         // Test PriceUpdated event
         uint256 newPrice = 0.6 * 10**8;
         vm.expectEmit(true, false, false, true);
-        emit Oracle.PriceUpdated(symbol, newPrice, block.timestamp);
+        emit OracleUpgradeable.PriceUpdated(symbol, newPrice, block.timestamp);
         oracle.updatePrice(symbol, newPrice);
         
         // Test FeedDeleted event
         vm.expectEmit(true, false, false, true);
-        emit Oracle.FeedDeleted(symbol);
+        emit OracleUpgradeable.FeedDeleted(symbol);
         oracle.deleteFeed(symbol);
     }
     

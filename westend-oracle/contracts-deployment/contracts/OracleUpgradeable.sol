@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-contract Oracle {
-    address public owner;
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract OracleUpgradeable is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     mapping(string => uint256) public prices;
     mapping(string => uint256) public lastUpdated;
     mapping(string => bool) public isActive;
@@ -11,14 +14,17 @@ contract Oracle {
     event FeedCreated(string indexed symbol, uint256 price);
     event FeedDeleted(string indexed symbol);
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
-        owner = msg.sender;
+        _disableInitializers();
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
-        _;
+    function initialize(address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     // CREATE - Create a new price feed
     function createFeed(string memory _symbol, uint256 _price) public onlyOwner {
@@ -66,5 +72,10 @@ contract Oracle {
     // Check if feed exists
     function feedExists(string memory _symbol) public view returns (bool) {
         return isActive[_symbol];
+    }
+
+    // Version function for upgrade testing
+    function version() public pure returns (string memory) {
+        return "0.1.0";
     }
 } 
